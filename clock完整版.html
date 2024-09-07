@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时钟</title>
+    <style>
+      /* 定时器 */
+      body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .timer-container {
+            text-align: center;
+        }
+        .time-display {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        input[type="number"] {
+            padding: 5px;
+            font-size: 16px;
+            width: 60px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        /* 弹窗样式 */
+        .modal {
+            display: none; /* 初始状态为隐藏 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }
+        .modal button {
+            margin-top: 20px;
+        }
+        #seconds {
+            margin-left: 20px;
+        }
+        .start {
+            margin-top: 30px;
+        }
+        /* 闹钟 */
+        #time {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        #alarm-container {
+            margin-bottom: 20px;
+        }
+
+        #alarm-time {
+            font-size: 24px;
+            padding: 5px;
+        }
+
+        #start-btn {
+            font-size: 24px;
+            padding: 10px 20px;
+        }
+
+        #stop-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+      /* tab栏切换 */
+        .tabs {
+          position: absolute;
+          top: 30px;
+  display: flex;
+  border-bottom: 2px solid #ccc;
+}
+
+.tab-link {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.tab-link.active {
+  background-color: #ddd;
+  border-bottom: 2px solid #333;
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+    </style>
+</head>
+<body>
+    <div class="tabs">
+        <button class="tab-link active" onclick="openTab(event, 'Tab1')">定时器</button>
+        <button class="tab-link" onclick="openTab(event, 'Tab2')">闹钟</button>
+      </div>
+      
+      <div id="Tab1" class="tab-content">
+        <div class="timer-container">
+          <div class="time-display" id="time-display">00:00</div>
+          <div>
+              <input type="number" id="minutes" placeholder="Min" min="0" max="60">分钟
+              <input type="number" id="seconds" placeholder="Sec" min="0" max="59">秒
+          </div>
+          <button class="start" onclick="startTimer()">Start Timer</button>
+      </div>
+  
+      <!-- 音乐播放器 -->
+      <audio id="music" src="./fall-piano-music-193530.mp3" loop></audio>
+  
+      <!-- 弹窗 -->
+      <div class="modal" id="music-modal">
+          <div class="modal-content">
+              <h2>时间到！</h2>
+              <button onclick="stopMusic()">停止</button>
+          </div>
+      </div>
+      </div>
+      
+      <div id="Tab2" class="tab-content" style="display:none">
+        <div id="time">00:00:00</div>
+
+    <div id="alarm-container">
+        <input type="time" id="alarm-time">
+        <button id="start-btn">开始闹钟</button>
+        <button id="stop-btn" style="display: none;">结束闹钟</button>
+    </div>
+
+    <audio id="alarm-sound" src="./fall-piano-music-193530.mp3" loop></audio>
+      </div>
+
+      <script>
+        let countdownInterval;
+
+function startTimer() {
+    let minutes = parseInt(document.getElementById('minutes').value) || 0;
+    let seconds = parseInt(document.getElementById('seconds').value) || 0;
+    let timeLeft = minutes * 60 + seconds;
+
+    if (timeLeft <= 0) {
+        alert("请设置一个有效的时间！");
+        return;
+    }
+
+    clearInterval(countdownInterval);
+    updateDisplay(timeLeft);
+
+    countdownInterval = setInterval(function() {
+        timeLeft--;
+        updateDisplay(timeLeft);
+
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            document.getElementById('music').play(); // 播放音乐
+            showPopup(); // 显示弹窗
+        }
+    }, 1000);
+}
+
+function updateDisplay(timeLeft) {
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    document.getElementById('time-display').textContent = `${minutes}:${seconds}`;
+}
+
+function showPopup() {
+    document.getElementById('music-modal').style.display = 'flex'; // 显示弹窗
+}
+
+function stopMusic() {
+    document.getElementById('music').pause(); // 停止音乐
+    document.getElementById('music').currentTime = 0; // 重置音乐播放位置
+    document.getElementById('music-modal').style.display = 'none'; // 隐藏弹窗
+}
+
+        // 闹钟
+        const timeDisplay = document.getElementById('time');
+        const alarmTimeInput = document.getElementById('alarm-time');
+        const startButton = document.getElementById('start-btn');
+        const stopButton = document.getElementById('stop-btn');
+        const alarmSound = document.getElementById('alarm-sound');
+
+        let alarmTime = null;
+        let alarmTimeout = null;
+        let wakeLock = null;
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+
+            if (alarmTime && `${hours}:${minutes}` === alarmTime) {
+                triggerAlarm();
+            }
+        }
+
+        setInterval(updateTime, 1000);
+
+        startButton.addEventListener('click', async () => {
+            alarmTime = alarmTimeInput.value;
+            if (alarmTime) {
+                const [hours, minutes] = alarmTime.split(':');
+                const now = new Date();
+                let alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
+
+                if (alarmDate <= now) {
+                    alarmDate.setDate(alarmDate.getDate() + 1);
+                }
+
+                const timeToAlarm = alarmDate.getTime() - now.getTime();
+
+                if (timeToAlarm >= 0) {
+                    alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);
+                    alert(`Alarm set for ${alarmDate.toLocaleString()}`);
+                    startButton.disabled = true;
+                    stopButton.style.display = 'inline';
+
+                    // 请求全屏模式
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    }
+
+                    // 请求保持屏幕常亮
+                    try {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                    } catch (err) {
+                        console.error(`${err.name}, ${err.message}`);
+                    }
+                }
+            } else {
+                alert('Please select a time.');
+            }
+        });
+
+        function triggerAlarm() {
+            alarmSound.play();
+        }
+
+        stopButton.addEventListener('click', () => {
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            clearTimeout(alarmTimeout);
+            alarmTime = null;
+
+            startButton.disabled = false;
+            stopButton.style.display = 'none';
+
+            // 释放屏幕常亮
+            if (wakeLock !== null) {
+                wakeLock.release()
+                    .then(() => {
+                        wakeLock = null;
+                    });
+            }
+
+            // 退出全屏模式
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        });
+
+        // tab栏切换
+
+        function openTab(evt, tabName) {
+  var i, tabContent, tabLinks;
+  
+  // Hide all tab contents
+  tabContent = document.getElementsByClassName("tab-content");
+  for (i = 0; i < tabContent.length; i++) {
+    tabContent[i].style.display = "none";
+  }
+
+  // Remove the active class from all tab links
+  tabLinks = document.getElementsByClassName("tab-link");
+  for (i = 0; i < tabLinks.length; i++) {
+    tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab and add an active class to the tab link
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Display the first tab by default
+document.getElementById("Tab1").style.display = "block";
+
+      </script>
+</body>
+</html>

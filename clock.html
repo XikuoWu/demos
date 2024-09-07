@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock with Alarm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+
+        #time {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        #alarm-container {
+            margin-bottom: 20px;
+        }
+
+        #alarm-time {
+            font-size: 24px;
+            padding: 5px;
+        }
+
+        #start-btn {
+            font-size: 24px;
+            padding: 10px 20px;
+        }
+
+        #stop-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="time">00:00:00</div>
+
+    <div id="alarm-container">
+        <input type="time" id="alarm-time">
+        <button id="start-btn">开始闹钟</button>
+        <button id="stop-btn" style="display: none;">结束闹钟</button>
+    </div>
+
+    <audio id="alarm-sound" src="./fall-piano-music-193530.mp3" loop></audio>
+
+    <script>
+        const timeDisplay = document.getElementById('time');
+        const alarmTimeInput = document.getElementById('alarm-time');
+        const startButton = document.getElementById('start-btn');
+        const stopButton = document.getElementById('stop-btn');
+        const alarmSound = document.getElementById('alarm-sound');
+
+        let alarmTime = null;
+        let alarmTimeout = null;
+        let wakeLock = null;
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+
+            if (alarmTime && `${hours}:${minutes}` === alarmTime) {
+                triggerAlarm();
+            }
+        }
+
+        setInterval(updateTime, 1000);
+
+        startButton.addEventListener('click', async () => {
+            alarmTime = alarmTimeInput.value;
+            if (alarmTime) {
+                const [hours, minutes] = alarmTime.split(':');
+                const now = new Date();
+                let alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
+
+                if (alarmDate <= now) {
+                    alarmDate.setDate(alarmDate.getDate() + 1);
+                }
+
+                const timeToAlarm = alarmDate.getTime() - now.getTime();
+
+                if (timeToAlarm >= 0) {
+                    alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);
+                    alert(`Alarm set for ${alarmDate.toLocaleString()}`);
+                    startButton.disabled = true;
+                    stopButton.style.display = 'inline';
+
+                    // 请求全屏模式
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    }
+
+                    // 请求保持屏幕常亮
+                    try {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                    } catch (err) {
+                        console.error(`${err.name}, ${err.message}`);
+                    }
+                }
+            } else {
+                alert('Please select a time.');
+            }
+        });
+
+        function triggerAlarm() {
+            alarmSound.play();
+        }
+
+        stopButton.addEventListener('click', () => {
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            clearTimeout(alarmTimeout);
+            alarmTime = null;
+
+            startButton.disabled = false;
+            stopButton.style.display = 'none';
+
+            // 释放屏幕常亮
+            if (wakeLock !== null) {
+                wakeLock.release()
+                    .then(() => {
+                        wakeLock = null;
+                    });
+            }
+
+            // 退出全屏模式
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        });
+    </script>
+
+</body>
+</html>
