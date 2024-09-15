@@ -167,11 +167,14 @@
         });
 
         function triggerAlarm() {
-            alarmSound.play();
-            clearAlarmTimestamp();  // 清除保存的闹钟时间
-            startButton.disabled = false;
-            stopButton.style.display = 'none';
+        alarmSound.play();
+        clearAlarmTimestamp();  // 清除保存的闹钟时间
+    
+        // 禁用开始按钮，保持停止按钮显示
+        startButton.disabled = true;
+        stopButton.style.display = 'inline';  // 保持“停止闹钟”按钮可见
         }
+
 
         stopButton.addEventListener('click', () => {
             alarmSound.pause();
