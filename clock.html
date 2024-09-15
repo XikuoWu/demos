@@ -34,10 +34,34 @@
             font-size: 18px;
             padding: 10px 20px;
         }
+
+        /* Custom modal styles */
+        #custom-modal {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #modal-content {
+            background: black;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+            color: white;
+            font-size: larger;
+        }
+
     </style>
 </head>
 <body>
-
+    <noscript>您需要开启   JAVASCRIPT   才可以使用此页面</noscript>
     <div id="time">00:00:00</div>
 
     <div id="alarm-container">
@@ -48,14 +72,22 @@
 
     <audio id="alarm-sound" src="./fall-piano-music-193530.mp3" loop></audio>
 
+    <!-- Custom modal -->
+    <div id="custom-modal">
+        <div id="modal-content">
+            <p id="modal-text">请选择一个时间</p>
+        </div>
+    </div>
+
     <script>
         const timeDisplay = document.getElementById('time');
         const alarmTimeInput = document.getElementById('alarm-time');
         const startButton = document.getElementById('start-btn');
         const stopButton = document.getElementById('stop-btn');
         const alarmSound = document.getElementById('alarm-sound');
+        const customModal = document.getElementById('custom-modal');
+        const modalText = document.getElementById('modal-text');
 
-        let alarmTime = null;
         let alarmTimeout = null;
         let wakeLock = null;
 
@@ -66,68 +98,95 @@
             const seconds = String(now.getSeconds()).padStart(2, '0');
             timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
 
-            if (alarmTime && `${hours}:${minutes}` === alarmTime) {
-                triggerAlarm();
+            const savedAlarmTime = localStorage.getItem('alarmTimestamp');
+            if (savedAlarmTime) {
+                const alarmDate = new Date(parseInt(savedAlarmTime, 10));
+                if (now >= alarmDate) {
+                    triggerAlarm();
+                }
             }
+        }
+
+        function saveAlarmTimestamp(timestamp) {
+            localStorage.setItem('alarmTimestamp', timestamp);
+        }
+
+        function clearAlarmTimestamp() {
+            localStorage.removeItem('alarmTimestamp');
         }
 
         setInterval(updateTime, 1000);
 
         startButton.addEventListener('click', async () => {
-            alarmTime = alarmTimeInput.value;
+            const alarmTime = alarmTimeInput.value;
             if (alarmTime) {
                 const [hours, minutes] = alarmTime.split(':');
                 const now = new Date();
                 let alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
 
                 if (alarmDate <= now) {
-                    alarmDate.setDate(alarmDate.getDate() + 1);
+                    alarmDate.setDate(alarmDate.getDate() + 1); // 跨日情况处理
                 }
 
                 const timeToAlarm = alarmDate.getTime() - now.getTime();
+                saveAlarmTimestamp(alarmDate.getTime());  // 保存设定时间
 
-                if (timeToAlarm >= 0) {
-                    alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);
-                    alert(`Alarm set for ${alarmDate.toLocaleString()}`);
-                    startButton.disabled = true;
-                    stopButton.style.display = 'inline';
+                alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);
+                
+                // 显示自定义弹窗，替代alert
+                modalText.textContent = `Alarm set for ${alarmDate.toLocaleString()}`;
+                customModal.style.display = 'flex';
+                
+                // 3秒后自动隐藏弹窗
+                setTimeout(() => {
+                    customModal.style.display = 'none';
+                }, 3000);
 
-                    // 请求全屏模式
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen();
-                    }
+                startButton.disabled = true;
+                stopButton.style.display = 'inline';
 
-                    // 请求保持屏幕常亮
-                    try {
-                        wakeLock = await navigator.wakeLock.request('screen');
-                    } catch (err) {
-                        console.error(`${err.name}, ${err.message}`);
-                    }
+                // 请求全屏模式
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                }
+
+                // 请求保持屏幕常亮
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) {
+                    console.error(`${err.name}, ${err.message}`);
                 }
             } else {
-                alert('Please select a time.');
+                customModal.style.display = 'flex'; // Show custom modal
+                modalText.textContent = '请选择一个时间';
+                // Hide the modal after 3 seconds
+                setTimeout(() => {
+                    customModal.style.display = 'none';
+                }, 3000);
             }
         });
 
         function triggerAlarm() {
             alarmSound.play();
+            clearAlarmTimestamp();  // 清除保存的闹钟时间
+            startButton.disabled = false;
+            stopButton.style.display = 'none';
         }
 
         stopButton.addEventListener('click', () => {
             alarmSound.pause();
             alarmSound.currentTime = 0;
             clearTimeout(alarmTimeout);
-            alarmTime = null;
+            clearAlarmTimestamp();  // 清除保存的闹钟时间
 
             startButton.disabled = false;
             stopButton.style.display = 'none';
 
             // 释放屏幕常亮
             if (wakeLock !== null) {
-                wakeLock.release()
-                    .then(() => {
-                        wakeLock = null;
-                    });
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                });
             }
 
             // 退出全屏模式
@@ -135,7 +194,32 @@
                 document.exitFullscreen();
             }
         });
-    </script>
 
+        // 页面加载时检查是否有未完成的闹钟
+        window.onload = () => {
+            const savedAlarmTime = localStorage.getItem('alarmTimestamp');
+            if (savedAlarmTime) {
+                const now = new Date();
+                const alarmDate = new Date(parseInt(savedAlarmTime, 10));
+
+                if (alarmDate > now) {
+                    const timeToAlarm = alarmDate.getTime() - now.getTime();
+                    alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);  // 设置倒计时
+                    startButton.disabled = true;
+                    stopButton.style.display = 'inline';
+                } else {
+                    triggerAlarm(); // 如果已经过了闹钟时间，立即触发闹钟
+                }
+            }
+        };
+
+        // 禁止页面刷新
+        window.addEventListener('beforeunload', function (event) {
+        // 显示确认对话框
+        event.preventDefault(); // 现代浏览器需要调用这个函数
+        event.returnValue = ''; // 旧版本浏览器需要设置这个属性
+        return ''; // 一些旧的浏览器会使用这个返回值
+        });
+    </script>
 </body>
 </html>
