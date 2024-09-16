@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timer</title>
+    <noscript>您需要开启   JAVASCRIPT   才可以使用此页面</noscript>
     <style>
         body {
             display: flex;
@@ -83,29 +84,79 @@
     </div>
 
     <script>
-        let countdownInterval;
-        let timeLeft;
+let countdownInterval;  // 用来存储计时器的引用
+let timeLeft;  // 剩余时间
 
-        function startTimer() {
-            let minutes = parseInt(document.getElementById('minutes').value) || 0;
-            let seconds = parseInt(document.getElementById('seconds').value) || 0;
-            timeLeft = minutes * 60 + seconds;
+function startTimer() {
+    let minutes = parseInt(document.getElementById('minutes').value) || 0;
+    let seconds = parseInt(document.getElementById('seconds').value) || 0;
+    timeLeft = minutes * 60 + seconds;
 
-            if (timeLeft <= 0) {
-                showCustomAlert(); // 显示自定义弹窗
-                return;
-            }
+    if (timeLeft <= 0) {
+        showCustomAlert(); // 显示自定义弹窗，提示设置有效的时间
+        return;
+    }
 
-            // 禁用“开始闹钟”按钮，显示“停止定时器”按钮
-            document.getElementById('start-btn').disabled = true;
-            document.getElementById('stop-btn').style.display = 'inline-block';
+    // 禁用“开始闹钟”按钮，显示“停止定时器”按钮
+    document.getElementById('start-btn').disabled = true;
+    document.getElementById('stop-btn').style.display = 'inline-block';
 
-            localStorage.setItem('timeLeft', timeLeft);
-            localStorage.setItem('startTime', Date.now());
+    localStorage.setItem('timeLeft', timeLeft);
+    localStorage.setItem('startTime', Date.now());
 
-            clearInterval(countdownInterval);
+    // 开始倒计时
+    clearInterval(countdownInterval);
+    updateDisplay(timeLeft);  // 更新显示
+
+    countdownInterval = setInterval(function() {
+        timeLeft--;
+        localStorage.setItem('timeLeft', timeLeft);
+        updateDisplay(timeLeft);  // 更新显示
+
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);  // 倒计时结束
+            document.getElementById('music').play();  // 播放音乐
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(countdownInterval);  // 停止倒计时
+    document.getElementById('music').pause();  // 停止音乐
+    document.getElementById('music').currentTime = 0;  // 重置音乐播放位置
+    document.getElementById('start-btn').disabled = false;  // 重新启用“开始闹钟”按钮
+    document.getElementById('stop-btn').style.display = 'none';  // 隐藏“停止定时器”按钮
+    localStorage.removeItem('timeLeft');  // 清除存储的时间
+}
+
+function updateDisplay(timeLeft) {
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    document.getElementById('time-display').textContent = `${minutes}:${seconds}`;
+}
+
+function showCustomAlert() {
+    const alertBox = document.getElementById('custom-alert');
+    alertBox.style.display = 'flex';
+
+    setTimeout(function() {
+        alertBox.style.display = 'none';  // 3秒后隐藏弹窗
+    }, 3000);
+}
+
+// 页面加载时，恢复计时器状态
+window.onload = function() {
+    let savedTimeLeft = localStorage.getItem('timeLeft');
+    let startTime = localStorage.getItem('startTime');
+
+    if (savedTimeLeft && startTime) {
+        let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        timeLeft = savedTimeLeft - elapsedTime;
+
+        if (timeLeft > 0) {
             updateDisplay(timeLeft);
-
             countdownInterval = setInterval(function() {
                 timeLeft--;
                 localStorage.setItem('timeLeft', timeLeft);
@@ -113,66 +164,14 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    document.getElementById('music').play(); // 循环播放音乐
-                    // 显示停止定时器按钮，等待用户手动点击停止
+                    document.getElementById('music').play();  // 播放音乐
                 }
             }, 1000);
+        } else {
+            localStorage.removeItem('timeLeft');
         }
-
-        function stopTimer() {
-            clearInterval(countdownInterval); // 停止定时器
-            document.getElementById('music').pause(); // 停止音乐
-            document.getElementById('music').currentTime = 0; // 重置音乐播放位置
-            document.getElementById('start-btn').disabled = false; // 重新启用“开始闹钟”按钮
-            document.getElementById('stop-btn').style.display = 'none'; // 隐藏“停止定时器”按钮
-            localStorage.removeItem('timeLeft'); // 清除存储的时间
-        }
-
-        function updateDisplay(timeLeft) {
-            let minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            seconds = seconds < 10 ? '0' + seconds : seconds;
-            document.getElementById('time-display').textContent = `${minutes}:${seconds}`;
-        }
-
-        // 自定义弹窗显示和隐藏逻辑
-        function showCustomAlert() {
-            const alertBox = document.getElementById('custom-alert');
-            alertBox.style.display = 'flex';
-
-            setTimeout(function() {
-                alertBox.style.display = 'none'; // 3秒后隐藏弹窗
-            }, 3000);
-        }
-
-        // 恢复定时器状态
-        window.onload = function() {
-            let savedTimeLeft = localStorage.getItem('timeLeft');
-            let startTime = localStorage.getItem('startTime');
-
-            if (savedTimeLeft && startTime) {
-                let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-                timeLeft = savedTimeLeft - elapsedTime;
-
-                if (timeLeft > 0) {
-                    updateDisplay(timeLeft);
-                    countdownInterval = setInterval(function() {
-                        timeLeft--;
-                        localStorage.setItem('timeLeft', timeLeft);
-                        updateDisplay(timeLeft);
-
-                        if (timeLeft <= 0) {
-                            clearInterval(countdownInterval);
-                            document.getElementById('music').play(); // 循环播放音乐
-                            // 保持“停止定时器”按钮可见
-                        }
-                    }, 1000);
-                } else {
-                    localStorage.removeItem('timeLeft');
-                }
-            }
-        };
+    }
+};
     </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clock with Alarm</title>
+    <noscript>您需要开启   JAVASCRIPT   才可以使用此页面</noscript>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,10 +59,12 @@
             font-size: larger;
         }
 
+        button {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <noscript>您需要开启   JAVASCRIPT   才可以使用此页面</noscript>
     <div id="time">00:00:00</div>
 
     <div id="alarm-container">
@@ -215,14 +218,6 @@
                 }
             }
         };
-
-        // 禁止页面刷新
-        window.addEventListener('beforeunload', function (event) {
-        // 显示确认对话框
-        event.preventDefault(); // 现代浏览器需要调用这个函数
-        event.returnValue = ''; // 旧版本浏览器需要设置这个属性
-        return ''; // 一些旧的浏览器会使用这个返回值
-        });
     </script>
 </body>
 </html>
