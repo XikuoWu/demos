@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./icon.ico" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
     <title>Clock</title>
     <style>
         body {
@@ -110,6 +112,17 @@
                 tab.classList.remove('active');
             });
             document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // 图标
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, function(error) {
+            console.log('ServiceWorker registration failed: ', error);
+            });
+        });
         }
     </script>
 </body>
