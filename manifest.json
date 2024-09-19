@@ -4,7 +4,7 @@
     "description": "A simple clock and timer app",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#f0f0f0",
+    "background_color": "white",
     "theme_color": "#333333",
     "icons": [
       {
