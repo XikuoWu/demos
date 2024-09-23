@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clock with Alarm</title>
+    <title>Clock</title>
     <noscript>您需要开启   JAVASCRIPT   才可以使用此页面</noscript>
+    <noscript>You need to enable JAVASCRIPT to run this website</noscript>
+    <link rel="shortcut icon" href="./icon.ico" type="image/x-icon">
+    <link rel="manifest" href="manifest.json">
     <style>
         @media (max-width: 550px) {
             #start-btn {
@@ -68,9 +71,35 @@
         button {
             cursor: pointer;
         }
+
+        /*  */
+        /*  */
+        h1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0px;
+            margin-bottom: 100px;
+        }
+
+        h1 div a {
+            text-decoration: none;
+            color: black;
+        }
+
+        h1 div a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <h1>
+        <div>
+            <a href="./clock.html">闹钟</a>
+            <a href="./timer.html">定时器</a>
+        </div>
+    </h1>
+
     <div id="time">00:00:00</div>
 
     <div id="alarm-container">
@@ -167,7 +196,7 @@
                 }
             } else {
                 customModal.style.display = 'flex'; // Show custom modal
-                modalText.textContent = '请选择一个时间';
+                modalText.textContent = '请选设置一个有效的时间！';
                 // Hide the modal after 3 seconds
                 setTimeout(() => {
                     customModal.style.display = 'none';

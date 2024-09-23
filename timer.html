@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timer</title>
     <noscript>您需要开启   JAVASCRIPT   才可以使用此页面</noscript>
+    <noscript>You need to enable JAVASCRIPT to run this website</noscript>
+    <link rel="shortcut icon" href="./icon.ico" type="image/x-icon">
+    <link rel="manifest" href="manifest.json">
     <style>
         body {
             display: flex;
@@ -60,14 +63,41 @@
         .start {
             margin-top: 30px;
         }
+
+        /*  */
+        /*  */
+        h1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 100px;
+            position: absolute;
+            top: 0px;
+        }
+
+        h1 div a {
+            text-decoration: none;
+            color: black;
+        }
+
+        h1 div a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <h1>
+        <div>
+            <a href="./clock.html">闹钟</a>
+            <a href="./timer.html">定时器</a>
+        </div>
+    </h1>
+    
     <div class="timer-container">
         <div class="time-display" id="time-display">00:00</div>
         <div>
-            <input type="number" id="minutes" placeholder="Min" min="0" max="60"> 分钟
-            <input type="number" id="seconds" placeholder="Sec" min="0" max="59"> 秒
+            <input type="number" id="minutes" placeholder="分钟" min="0" max="60">
+            <input type="number" id="seconds" placeholder="秒" min="0" max="59">
         </div>
         <button class="start" id="start-btn" onclick="startTimer()">开始闹钟</button>
         <button class="stop" id="stop-btn" style="display:none;" onclick="stopTimer()">停止定时器</button>
