@@ -90,6 +90,47 @@
         h1 div a:hover {
             text-decoration: underline;
         }
+
+        /* input */
+        /* Hide the native time input appearance */
+        input[type="time"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            padding: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            width: 130px;
+        }
+
+        /* Custom styling for Chrome-like appearance */
+        input[type="time"]::-webkit-inner-spin-button,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            display: none;
+        }
+
+        /* Add a custom clock icon */
+        input[type="time"]::before {
+            content: "\1F551"; /* Unicode for clock icon */
+            position: absolute;
+            right: 10px;
+            pointer-events: none;
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Style hover and focus states for consistency */
+        input[type="time"]:hover {
+            border-color: #aaa;
+        }
+
+        input[type="time"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
     </style>
 </head>
 <body>
