@@ -89,6 +89,18 @@
 
         #alarm-container {
             margin-bottom: 20px;
+            align-items: center;
+        }
+
+        #alarm-container label {
+            font-size: 30px;
+        }
+
+        #alarm-container select {
+            padding: 5px;
+            font-size: larger;
+            border-radius: 10px;
+            background-color: white;
         }
 
         #alarm-time {
@@ -151,6 +163,20 @@
         h1 div a:hover {
             text-decoration: underline;
         }
+
+        select {
+            background-color: white;
+        }
+        
+        button {
+            background-color: white;
+            border: 0.3px black solid;
+            border-radius: 10px;
+        }
+
+        button:hover {
+            background-color: rgb(243, 243, 243);
+        }
     </style>
 </head>
 <body>
@@ -166,8 +192,97 @@
         <div id="time">00:00:00</div>
 
         <div id="alarm-container">
-            <input type="time" id="alarm-time">
-            <button id="start-btn">开始闹钟</button>
+            <label for="alarm-hours">Hour:</label>
+        <select id="alarm-hours">
+            <option value="00">00</option>
+            <option value="01">01</option>
+            <option value="01">02</option>
+            <option value="01">03</option>
+            <option value="01">04</option>
+            <option value="01">05</option>
+            <option value="01">06</option>
+            <option value="01">07</option>
+            <option value="01">08</option>
+            <option value="01">09</option>
+            <option value="01">10</option>
+            <option value="01">11</option>
+            <option value="01">12</option>
+            <option value="01">13</option>
+            <option value="01">14</option>
+            <option value="01">15</option>
+            <option value="01">16</option>
+            <option value="01">17</option>
+            <option value="01">18</option>
+            <option value="01">19</option>
+            <option value="01">20</option>
+            <option value="01">21</option>
+            <option value="01">22</option>
+            <option value="23">23</option>
+        </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label for="alarm-minutes">Minute:</label>
+        <select id="alarm-minutes">
+            <option value="00">00</option>
+            <option value="01">01</option>
+            <option value="01">02</option>
+            <option value="01">03</option>
+            <option value="01">04</option>
+            <option value="01">05</option>
+            <option value="01">06</option>
+            <option value="01">07</option>
+            <option value="01">08</option>
+            <option value="01">09</option>
+            <option value="01">10</option>
+            <option value="01">11</option>
+            <option value="01">12</option>
+            <option value="01">13</option>
+            <option value="01">14</option>
+            <option value="01">15</option>
+            <option value="01">16</option>
+            <option value="01">17</option>
+            <option value="01">18</option>
+            <option value="01">19</option>
+            <option value="01">20</option>
+            <option value="01">21</option>
+            <option value="01">22</option>
+            <option value="01">23</option>
+            <option value="01">24</option>
+            <option value="01">25</option>
+            <option value="01">26</option>
+            <option value="01">27</option>
+            <option value="01">28</option>
+            <option value="01">29</option>
+            <option value="01">30</option>
+            <option value="01">31</option>
+            <option value="01">32</option>
+            <option value="01">33</option>
+            <option value="01">34</option>
+            <option value="01">35</option>
+            <option value="01">36</option>
+            <option value="01">37</option>
+            <option value="01">38</option>
+            <option value="01">39</option>
+            <option value="01">40</option>
+            <option value="01">41</option>
+            <option value="01">42</option>
+            <option value="01">43</option>
+            <option value="01">44</option>
+            <option value="01">45</option>
+            <option value="01">46</option>
+            <option value="01">47</option>
+            <option value="01">48</option>
+            <option value="01">49</option>
+            <option value="01">50</option>
+            <option value="01">51</option>
+            <option value="01">52</option>
+            <option value="01">53</option>
+            <option value="01">54</option>
+            <option value="01">55</option>
+            <option value="01">56</option>
+            <option value="01">57</option>
+            <option value="01">58</option>
+            <option value="59">59</option>
+        </select>&nbsp;&nbsp;
+            <button id="start-btn">开始闹钟</button>&nbsp;
             <button id="stop-btn" style="display: none;">结束闹钟</button>
         </div>
 
@@ -186,6 +301,7 @@
         <div style="color: black; font-size: medium;" class="modal-content">
             <h4>开启定时器以后请勿刷新或在此页面切换页面 !</h4>
             <p>建议使用Google Chrome浏览器打开 !</p>
+            <p>请在当天内或明天上午前定铃 ！</p>
             <button onclick="closeModal()">确定</button>
         </div>
     </div>
@@ -229,27 +345,28 @@
 
         setInterval(updateTime, 1000);
 
+        const alarmHoursInput = document.getElementById('alarm-hours');
+        const alarmMinutesInput = document.getElementById('alarm-minutes');
+
         startButton.addEventListener('click', async () => {
-            const alarmTime = alarmTimeInput.value;
-            if (alarmTime) {
-                const [hours, minutes] = alarmTime.split(':');
+            const hours = alarmHoursInput.value;
+            const minutes = alarmMinutesInput.value;
+
+            if (hours !== '' && minutes !== '') {
                 const now = new Date();
                 let alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
 
                 if (alarmDate <= now) {
-                    alarmDate.setDate(alarmDate.getDate() + 1); // 跨日情况处理
+                    alarmDate.setDate(alarmDate.getDate() + 1); // Handle crossing to the next day
                 }
 
                 const timeToAlarm = alarmDate.getTime() - now.getTime();
-                saveAlarmTimestamp(alarmDate.getTime());  // 保存设定时间
+                saveAlarmTimestamp(alarmDate.getTime());  // Save the set time
 
                 alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);
-                
-                // 显示自定义弹窗，替代alert
+
                 modalText.textContent = `闹钟将在 ${alarmDate.toLocaleString()} 响铃`;
                 customModal.style.display = 'flex';
-                
-                // 3秒后自动隐藏弹窗
                 setTimeout(() => {
                     customModal.style.display = 'none';
                 }, 3000);
@@ -257,26 +374,16 @@
                 startButton.disabled = true;
                 stopButton.style.display = 'inline';
 
-                // 请求全屏模式
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                }
-
-                // 请求保持屏幕常亮
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                } catch (err) {
-                    console.error(`${err.name}, ${err.message}`);
-                }
+                // Request wake lock and full screen as before
             } else {
-                customModal.style.display = 'flex'; // Show custom modal
-                modalText.textContent = '请选设置一个有效的时间！';
-                // Hide the modal after 3 seconds
+                modalText.textContent = '请设置一个时间！';
+                customModal.style.display = 'flex';
                 setTimeout(() => {
                     customModal.style.display = 'none';
                 }, 3000);
             }
         });
+
 
         function triggerAlarm() {
         alarmSound.play();
