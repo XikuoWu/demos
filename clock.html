@@ -84,25 +84,6 @@
             cursor: pointer;
         }
 
-        /*  */
-        /*  */
-        h1 {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 0px;
-            margin-bottom: 100px;
-        }
-
-        h1 div a {
-            text-decoration: none;
-            color: black;
-        }
-
-        h1 div a:hover {
-            text-decoration: underline;
-        }
-
         select {
             background-color: white;
         }
@@ -119,13 +100,6 @@
     </style>
 </head>
 <body>
-    <h1>
-        <div>
-            <a href="./clock.html">闹钟</a>
-            <a href="./timer.html">定时器</a>
-        </div>
-    </h1>
-
     <div id="time">00:00:00</div>
 
     <div id="alarm-container">
@@ -282,11 +256,11 @@
                 let alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
 
                 if (alarmDate <= now) {
-                    alarmDate.setDate(alarmDate.getDate() + 1); // Handle crossing to the next day
+                    alarmDate.setDate(alarmDate.getDate() + 1);
                 }
 
                 const timeToAlarm = alarmDate.getTime() - now.getTime();
-                saveAlarmTimestamp(alarmDate.getTime());  // Save the set time
+                saveAlarmTimestamp(alarmDate.getTime());
 
                 alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);
 
@@ -299,7 +273,6 @@
                 startButton.disabled = true;
                 stopButton.style.display = 'inline';
 
-                // Request wake lock and full screen as before
             } else {
                 modalText.textContent = '请设置一个时间！';
                 customModal.style.display = 'flex';
@@ -312,11 +285,10 @@
 
         function triggerAlarm() {
         alarmSound.play();
-        clearAlarmTimestamp();  // 清除保存的闹钟时间
+        clearAlarmTimestamp();
     
-        // 禁用开始按钮，保持停止按钮显示
         startButton.disabled = true;
-        stopButton.style.display = 'inline';  // 保持“停止闹钟”按钮可见
+        stopButton.style.display = 'inline';
         }
 
 
@@ -324,25 +296,22 @@
             alarmSound.pause();
             alarmSound.currentTime = 0;
             clearTimeout(alarmTimeout);
-            clearAlarmTimestamp();  // 清除保存的闹钟时间
+            clearAlarmTimestamp();
 
             startButton.disabled = false;
             stopButton.style.display = 'none';
 
-            // 释放屏幕常亮
             if (wakeLock !== null) {
                 wakeLock.release().then(() => {
                     wakeLock = null;
                 });
             }
 
-            // 退出全屏模式
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             }
         });
 
-        // 页面加载时检查是否有未完成的闹钟
         window.onload = () => {
             const savedAlarmTime = localStorage.getItem('alarmTimestamp');
             if (savedAlarmTime) {
@@ -351,11 +320,11 @@
 
                 if (alarmDate > now) {
                     const timeToAlarm = alarmDate.getTime() - now.getTime();
-                    alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);  // 设置倒计时
+                    alarmTimeout = setTimeout(triggerAlarm, timeToAlarm);
                     startButton.disabled = true;
                     stopButton.style.display = 'inline';
                 } else {
-                    triggerAlarm(); // 如果已经过了闹钟时间，立即触发闹钟
+                    triggerAlarm();
                 }
             }
         };
